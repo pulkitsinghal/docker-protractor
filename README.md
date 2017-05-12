@@ -1,6 +1,71 @@
 Dockerfile for [Protractor](http://angular.github.io/protractor/) test execution
 ================================================================================
 
+Summary
+-------
+
+1. Clone this project: `git clone https://github.com/pulkitsinghal/docker-protractor.git`
+1. Build a docker image from this project:
+
+    ```
+    cd docker-protractor
+    docker build -t docker-protractor .
+    ```
+    * I could make yet another image available on DockerHub but if not enough people benefit from this fork then its not practical. That is the reason I recommend building it yourself. If you hate this because bandwidth or CPU/memory is an issue for you then I recommend reading [this](https://training.shoppinpal.com/solution.html).
+1. Switch to the root project directory of your application.
+1. When running this docker container:
+    1. In your application, create a copy your existing `conf` file and rename it as `protractor.conf.js` because that's the only thing that this image will look for right now, nothing else.
+    1. `protractor.conf.js` must be created or updated such that chrome is run with the `no-sandbox` option
+    1. You need to start your application and have a `BASEURL` ready for reference so that the protractor tests have something to run against. Let's hope you don't need too many code changes to follow this best practice.
+        * If you need to run against another container then there are instructions near the end of this README. Since this project is a fork, I have not tried it myself.
+    1. Mount the directory which contains your tests (not your entire application) as a volume under `/project`, examples:
+
+        ```
+        # mounts present working directory into container under /project
+        # protractor.conf.js should be in `pwd`
+        -v `pwd`:/project
+        
+        # OR, if `protractor.conf.js` is in `tests` folder, then
+        -v `pwd`/tests:/project
+
+        # OR, if `protractor.conf.js` is in `tests/e2e` folder, then
+        -v `pwd`/tests/e2e:/project
+        ```
+    1. So you will be running something like:
+
+        ```
+        docker run --rm \
+          -v <test project location>:/project \
+          --env BASEURL=<point at the URL where your application is running>
+          docker-protractor
+        ```
+1. You may `docker-compose.e2e.yml` file to the root directory of your application project to turn your end-2-end tests into a load testing harness!
+    1. Sample:
+        ```
+        version: '2'
+        services:
+        e2e:
+          image: docker-protractor
+          environment:
+            - BASEURL=http://staging.app.com
+          volumes:
+            - ./tests/e2e:/project
+        ```
+    1. You can then start and scale as many e2e tests as you would like:
+        ```
+        #  run them once:
+        docker-compose --file ./docker-compose.e2e.yml up
+        #  run them 5 times (in parallel):
+        docker-compose --file ./docker-compose.e2e.yml up --scale e2e=5
+        #  run them 100 times (in parallel):
+        docker-compose --file ./docker-compose.e2e.yml up --scale e2e=5
+
+        # etc.
+        # you get the idea ...
+        ```
+
+Background
+----------
 Based on [caltha/protractor](https://bitbucket.org/rkrzewski/dockerfile), this image contains a fully configured environment for running Protractor tests under the Chromium browser.
 
 This version additionally supports linking docker containers together to test software in another container, and passing a custom base URL into your protractor specs so you don't have to hard-code the URL in them. 

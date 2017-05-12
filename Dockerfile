@@ -21,21 +21,26 @@ RUN apt-get update && \
     libgconf-2-4 \
     libexif12 \
     chromium \
-    npm \
     supervisor \
     netcat-traditional \
     curl \
-    ffmpeg && \
+    ffmpeg \
+    gnupg && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
-RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
+  apt-get update && \
+  apt-get install -y nodejs && \
+  rm -rf /var/lib/apt/lists/*
+
+#RUN ln -s /usr/bin/nodejs /usr/bin/node
 
 # Upgrade NPM to latest (address issue #3)
-RUN npm install -g npm
+#RUN npm install -g npm
 
 # Install Protractor
-RUN npm install -g protractor@4.0.4 
+RUN npm install -g protractor@5.1.1
 
 # Install Selenium and Chrome driver
 RUN webdriver-manager update
