@@ -1,8 +1,22 @@
 Dockerfile for [Protractor](http://angular.github.io/protractor/) test execution
 ================================================================================
 
-Summary
--------
+DEPRECATED
+----------
+
+This fork is deprectated/discontinued because there is a much better alternative now available.
+
+Go use the official and well supported container images from [SeleniumHQ/docker-selenium](https://github.com/SeleniumHQ/docker-selenium/):
+- you can run selenium server and broser in one container
+- you can run your protractor test runner in another container
+- you can even attach to a VNC session and watch what the browser is doing inside the container!
+
+This project is still quite useful as learning material:
+- when you wish to hack together a container image with java and its elusive ffmpeg dependency
+- when you need references/examples of how `supervisor` can help keep containers alive
+
+How to use it?
+--------------
 
 1. Clone this project: `git clone https://github.com/pulkitsinghal/docker-protractor.git`
 1. Build a docker image from this project:
